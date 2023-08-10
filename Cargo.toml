@@ -1,0 +1,12 @@
+[package]
+name = "wei-docker"
+version = "0.1.0"
+edition = "2021"
+description = "wei docker"
+documentation = "https://github.com/zuiyue-com/wei-docker"
+homepage = "https://github.com/zuiyue-com/wei-docker"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+bollard = "0.14"
+futures = "0.3"
