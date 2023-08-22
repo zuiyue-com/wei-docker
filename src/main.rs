@@ -1,3 +1,5 @@
+use std::env;
+
 use bollard::errors::Error;
 use bollard::image::{CreateImageOptions,ListImagesOptions};
 use bollard::container::{ListContainersOptions};
@@ -10,21 +12,62 @@ use std::process::Command;
 
 use futures::StreamExt;
 
-fn main() {
-    println!("Hello, world!");
+
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    // let status = serde_json::json!({
+    //     "code": "200",
+    //     "status": "Ok"
+    // });
+
+    // println!("{}", status.get("code").expect("500").to_string());
+
+    wei_env::bin_init("wei-docker");
+    let args: Vec<String> = env::args().collect();
+
+    // if args.len() < 2 {
+    //     // help();
+    //     std::process::exit(1);
+    // }
+    let command = &args[1];
+
+    match command.as_str() {
+        "is_runing" => {
+            println!("herea");
+            is_runing().await?;
+            println!("herea");
+        },
+        "uninstall" => {
+            println!("Uninstalling...");
+        },
+        "check" => {
+
+        },
+        "api" => {
+            // api().await?;
+        },
+        _ => {
+            // help();
+            std::process::exit(1);
+        }
+    }
+
+    Ok(())
 }
 
-pub async fn ensure_docker_running() -> Result<(), Error> {
+pub async fn is_runing() -> Result<(), Error> {
     match Docker::connect_with_local_defaults() {
         Ok(docker) => {
             // Check Docker daemon is running by fetching system information
             let _ = docker.version().await?;
-            println!("Docker is installed and running.");
+            println!("{:?}",serde_json::json!({
+                "code": 200
+            }));
+            
         }
         Err(_) => {
-            println!("Docker is not installed or not running.");
-            println!("Trying to start Docker...");
-
             // For Linux, macOS, and Windows
             let start_docker = if cfg!(target_os = "linux") {
                 Command::new("systemctl")
@@ -47,8 +90,13 @@ pub async fn ensure_docker_running() -> Result<(), Error> {
             };
 
             match start_docker {
-                Ok(_) => println!("Docker has been started."),
-                Err(err) => eprintln!("Failed to start Docker: {}", err),
+                Ok(_) => print!("{:?}",serde_json::json!({
+                    "code": 200
+                })),
+                Err(err) => print!("{:?}", serde_json::json!({
+                    "code": 400,
+                    "status" : "Failed to start Docker"
+                })),
             }
         }
     }
