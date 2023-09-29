@@ -1,6 +1,6 @@
 [package]
 name = "wei-docker"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "wei docker"
 documentation = "https://github.com/zuiyue-com/wei-docker"
@@ -8,9 +8,13 @@ homepage = "https://github.com/zuiyue-com/wei-docker"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+wei-log = "0.2.5"
+wei-env = "0.2.4"
+wei-download = { path = "../wei-download" }
+wei-docker-install = "0.2.3"
 bollard = "0.14"
 futures = "0.3"
-wei-env = "0.2.4"
 tokio = { version = "1.28", features = ["full"] }
 serde_json = "1.0"
 reqwest = { version = "0.11", features = ["json"] }
+winreg = "0.50.0"
