@@ -10,13 +10,22 @@
     - [x] 安装 wsl_update.msi
     - [x] 安装 docker install
     - [x] 安装 ubuntu
-    - [ ] 安装 nvidia cuda
-    - [ ] 安装 nvidia cudnn
+    - [ ] 安装 wsl ubuntu docker
+        - [ ] wsl --shutdown
+        - [ ] wsl --unregister wei-ubuntu
+        - [ ] wsl --import wei-ubuntu docker/wei-ubuntu docker/wei-ubuntu.tar --version 2
+        - [ ] wsl --set-default wei-ubuntu
+    - [ ] 安装 wsl nvidia cuda
+    - [ ] 安装 wsl nvidia cudnn
     - [ ] 检测 wsl-update.msi
-    - [ ] 检测 docker desktop.exe
-    - [ ] 检测 ubuntu 是否存在于 wsl --list
-    - [ ] 检测 nvidia cuda 是否存在指定文件
-    - [ ] 检测 nvidia cudnn 是否存在指定文件
+    - [ ] 检测 wsl ubuntu
+    - [ ] 检测 wsl ubuntu docker
+    - [ ] 检测 wsl nvidia cuda 
+    - [ ] 检测 wsl nvidia cudnn 
+    - [ ] 制作 ubuntu torrent
+    - [ ] 安装 ubuntu 镜像
+    - [ ] 如果是 windows 11 不重启
+    
     
 - [x] 开启 docker 服务
 - [x] 关闭 docker 服务
