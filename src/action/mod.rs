@@ -1,36 +1,29 @@
 use std::process::Command;
 
 pub fn start() -> bool {
-    let docker_exe_path = docker_start_exe();
-    if docker_exe_path == "" {
-        return false;
-    }
-    let path = std::path::Path::new(&docker_exe_path);
-    if !path.is_file() {
-        info!("{}", "Docker Desktop.exe文件不存在");
-        return false;
-    }
+    let output = Command::new("powershell")
+        .args(["/c", "wsl", "service", "docker", "start"])
+        .output().unwrap();
 
-    let status = Command::new("powershell")
-        .arg("/c")
-        .arg(&format!("& '{}'", docker_exe_path))
-        .status().unwrap();
+    if output.status.success() {
+        let s = String::from_utf8_lossy(&output.stdout);
+        info!("Command output: {}", s);
 
-    if !status.success() {
-        info!("{}", "Docker Desktop.exe运行失败");
+        if s.contains("OK") || s.contains("Starting Docker: docker") {
+            return true;
+        }
         return false;
-    }
-
-    true
+    } 
+    let s = String::from_utf8_lossy(&output.stderr);
+    info!("Command failed, stderr: {}", s);
+    false
 }
 
 pub fn stop() {
     let status = Command::new("powershell")
         .arg("/c")
-        .arg("taskkill")
-        .arg("/IM")
-        .arg("\"Docker Desktop.exe\"")
-        .arg("/F")
+        .arg("wsl")
+        .arg("--shutdown")
         .status().unwrap();
 
     if !status.success() {
@@ -38,16 +31,16 @@ pub fn stop() {
     }
 }
 
-fn docker_start_exe() -> String {
-    let hklm = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
-    let docker = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Docker Desktop");
+// fn docker_start_exe() -> String {
+//     let hklm = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
+//     let docker = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Docker Desktop");
 
-    if let Ok(docker) = docker {
-        let installation_path: Result<String, _> = docker.get_value("InstallLocation");
+//     if let Ok(docker) = docker {
+//         let installation_path: Result<String, _> = docker.get_value("InstallLocation");
 
-        if let Ok(installation_path) = installation_path {
-            return format!("{}\\Docker Desktop.exe",installation_path);
-        }
-    }
-    "".to_string()
-}
+//         if let Ok(installation_path) = installation_path {
+//             return format!("{}\\Docker Desktop.exe",installation_path);
+//         }
+//     }
+//     "".to_string()
+// }

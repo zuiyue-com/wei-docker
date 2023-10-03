@@ -1,4 +1,3 @@
-
 pub async fn image_create(image_name: &str) -> Result<(), bollard::errors::Error> {
     let docker = Docker::connect_with_local_defaults()?;
 
