@@ -2,13 +2,14 @@
 extern crate wei_log;
 
 mod action;
+mod image;
+// mod container;
 
 use std::env;
 
 use wei_download::DownloadMethod::QBitTorrent;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     wei_env::bin_init("wei-docker");
     let args: Vec<String> = env::args().collect();
@@ -49,12 +50,107 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "progress": wei_docker_install::check()
             }));
         },
-        "api" => {
+        "image_pull" => {
+            result_string(image::pull(&args[2]));
+        },
+        "image_rmi" => {
+            result_string(image::rmi(&args[2]));
+        },
+        "image_list" => {
+            result_vec(image::list());
+        },
+        "image_exists" => {
+            result(image::exists(&args[2]));
         },
         _ => {
+            print!("{}", serde_json::json!({
+                "code": "400",
+                "msg": "error",
+                "data": "command not found"
+            }));
             return Ok(());
         }
     }
 
     Ok(())
+}
+
+pub fn docker(mut vec: Vec<&str>) -> Result<String, Box<dyn std::error::Error>> {
+    vec.insert(0, "docker");
+
+    #[cfg(target_os = "windows")]
+    let data = wei_run::command("wsl", vec)?;
+
+    #[cfg(not(target_os = "windows"))]
+    let data = wei_run::command("", vec)?;
+
+    let error_vec = vec![
+        "requires exactly argument",
+        "Usage:  docker [OPTIONS] COMMAND",
+        "is not a docker command.",
+        "Error response from daemon: No such image:",
+        "Error response from daemon: pull access denied for",
+        "Error response from daemon:",
+    ];
+
+    for item in error_vec {
+        if data.contains(item) {
+            return Err(data.into());
+        }
+    }
+
+    Ok(data)
+}
+
+pub fn result_string(data: Result<String, Box<dyn std::error::Error>>) {
+    match data {
+        Ok(data) => {
+            print!("{}", serde_json::json!({
+                "code": "200",
+                "msg": "success",
+                "data": data
+            }));
+        },
+        Err(data) => {
+            print!("{}", serde_json::json!({
+                "code": "400",
+                "msg": data.to_string()
+            }));
+        }
+    }
+}
+
+pub fn result_vec(data: Result<Vec<String>, Box<dyn std::error::Error>>) {
+    match data {
+        Ok(data) => {
+            print!("{}", serde_json::json!({
+                "code": "200",
+                "msg": "success",
+                "data": data
+            }));
+        },
+        Err(data) => {
+            print!("{}", serde_json::json!({
+                "code": "400",
+                "msg": data.to_string(),
+            }));
+        }
+    }
+}
+
+pub fn result(data: Result<(), Box<dyn std::error::Error>>) {
+    match data {
+        Ok(()) => {
+            print!("{}", serde_json::json!({
+                "code": "200",
+                "msg": "success",
+            }));
+        },
+        Err(data) => {
+            print!("{}", serde_json::json!({
+                "code": "400",
+                "msg": data.to_string()
+            }));
+        }
+    }
 }

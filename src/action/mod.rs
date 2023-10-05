@@ -30,17 +30,3 @@ pub fn stop() {
         info!("{}", "关闭Docker Desktop.exe运行失败");
     }
 }
-
-// fn docker_start_exe() -> String {
-//     let hklm = winreg::RegKey::predef(winreg::enums::HKEY_LOCAL_MACHINE);
-//     let docker = hklm.open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Docker Desktop");
-
-//     if let Ok(docker) = docker {
-//         let installation_path: Result<String, _> = docker.get_value("InstallLocation");
-
-//         if let Ok(installation_path) = installation_path {
-//             return format!("{}\\Docker Desktop.exe",installation_path);
-//         }
-//     }
-//     "".to_string()
-// }

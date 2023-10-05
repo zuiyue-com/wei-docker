@@ -1,40 +1,36 @@
-pub async fn create(image_name: &str) -> Result<(), bollard::errors::Error> {
-    let docker = Docker::connect_with_local_defaults()?;
+pub fn pull(name: &str) -> Result<String,Box<dyn std::error::Error>> {
+    let data = super::docker(vec!["pull", name])?;
 
-    let options = CreateImageOptions {
-        from_image: image_name,
-        ..Default::default()
-    };
+    Ok(data)
+}
 
-    let mut stream = docker.create_image(Some(options), None, None);
+pub fn rmi(name: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let data = super::docker(vec!["rmi", name])?;
 
-    while let Some(pull_result) = stream.next().await {
-        match pull_result {
-            Ok(output) => println!("{:?}", output),
-            Err(err) => eprintln!("Error: {}", err),
+    Ok(data)
+}
+
+pub fn list() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let data = super::docker(vec!["image", "ls", "--format", "{{.Repository}}:{{.Tag}}"])?;
+
+    let mut vec = Vec::new();
+    for item in data.split("\n") {
+        if !item.is_empty() {
+            vec.push(item.to_string());
         }
     }
 
-    Ok(())
+    Ok(vec)
 }
 
-pub async fn exists(image_name: &str) -> Result<bool, Error> {
-    // 创建 Docker 客户端
-    let docker = Docker::connect_with_socket_defaults()?;
+pub fn exists(name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let data = list()?;
 
-    // 创建镜像过滤器
-    let mut filters = HashMap::new();
-    filters.insert("reference".to_string(), vec![image_name.to_string()]);
+    for item in data {
+        if item == name {
+            return Ok(());
+        }
+    }
 
-    // 获取 Docker 镜像列表
-    let options = Some(ListImagesOptions {
-        filters: filters,
-        ..Default::default()
-    });
-    let images = docker.list_images(options).await?;
-
-    // 检查镜像是否存在
-    let image_exists = !images.is_empty();
-
-    Ok(image_exists)
+    Err("not exists".into())
 }
