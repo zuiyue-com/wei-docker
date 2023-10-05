@@ -1,4 +1,4 @@
-pub async fn image_create(image_name: &str) -> Result<(), bollard::errors::Error> {
+pub async fn create(image_name: &str) -> Result<(), bollard::errors::Error> {
     let docker = Docker::connect_with_local_defaults()?;
 
     let options = CreateImageOptions {
@@ -18,7 +18,7 @@ pub async fn image_create(image_name: &str) -> Result<(), bollard::errors::Error
     Ok(())
 }
 
-pub async fn image_exists(image_name: &str) -> Result<bool, Error> {
+pub async fn exists(image_name: &str) -> Result<bool, Error> {
     // 创建 Docker 客户端
     let docker = Docker::connect_with_socket_defaults()?;
 
