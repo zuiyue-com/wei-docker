@@ -120,6 +120,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             };
         }
+        "container_switch_gpu" => {
+            result_string(container::switch_gpu(&args[2], args[3..].to_vec()));
+        }
         _ => {
             print!("{}", serde_json::json!({
                 "code": "400",

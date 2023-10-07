@@ -39,7 +39,7 @@ r#"{
     for item in data.split("|||") {
         let item = item.trim();
         if !item.is_empty() {
-            let mut c: Container = serde_json::from_str(item)?;
+            let c: Container = serde_json::from_str(item)?;
             
             vec.push(c);
         }
@@ -151,6 +151,14 @@ pub fn inspect(name: &str) -> Result<ContainerStat, Box<dyn std::error::Error>> 
     };
 
     Ok(data)
+}
+
+pub fn switch_gpu(name: &str, args: Vec<String>) -> Result<String,Box<dyn std::error::Error>> {
+    stop(name)?;
+    super::docker(vec!["commit", name, name])?;
+    super::docker(vec!["rm", name])?;
+
+    run(args)
 }
 
 // pub async fn container_start(image_name: &str, container_name: &str, gpu_id: &str) -> io::Result<()> {
