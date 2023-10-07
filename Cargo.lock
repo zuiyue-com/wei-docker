@@ -399,6 +399,7 @@ checksum = "ca6ad05a4870b2bf5fe995117d3728437bd27d7cd5f06f13c17443ef369775a1"
 name = "wei-docker"
 version = "0.1.1"
 dependencies = [
+ "serde",
  "serde_json",
  "wei-docker-install",
  "wei-download",

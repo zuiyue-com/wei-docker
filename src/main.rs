@@ -3,7 +3,7 @@ extern crate wei_log;
 
 mod action;
 mod image;
-// mod container;
+mod container;
 
 use std::env;
 
@@ -62,6 +62,64 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "image_exists" => {
             result(image::exists(&args[2]));
         },
+        "container_run" => {
+            result_string(container::run(args[2..].to_vec()));
+        },
+        "container_ps" => {
+            match container::ps_a() {
+                Ok(data) => {
+                    print!("{}", serde_json::json!({
+                        "code": "200",
+                        "msg": "success",
+                        "data": data
+                    }));
+                },
+                Err(data) => {
+                    print!("{}", serde_json::json!({
+                        "code": "400",
+                        "msg": data.to_string()
+                    }));
+                }
+            }
+        }
+        "container_stop" => {
+            result(container::stop(&args[2]));
+        },
+        "container_exists" => {
+            result(container::exists(&args[2]));
+        },
+        "container_restart" => {
+            result(container::restart(&args[2]));
+        },
+        "container_rm" => {
+            result(container::rm(&args[2]));
+        },
+        "container_is_running" => {
+            result(container::is_running(&args[2]));
+        },
+        "container_is_stop" => {
+            result(container::is_stop(&args[2]));
+        },
+        "container_logs" => {
+            result_string(container::logs(&args[2]));
+        },
+        "container_inspect" => {
+            match container::inspect(&args[2]) {
+                Ok(data) => {
+                    print!("{}", serde_json::json!({
+                        "code": "200",
+                        "msg": "success",
+                        "data": data
+                    }));
+                },
+                Err(data) => {
+                    print!("{}", serde_json::json!({
+                        "code": "400",
+                        "msg": data.to_string()
+                    }));
+                }
+            };
+        }
         _ => {
             print!("{}", serde_json::json!({
                 "code": "400",
@@ -85,6 +143,7 @@ pub fn docker(mut vec: Vec<&str>) -> Result<String, Box<dyn std::error::Error>> 
     let data = wei_run::command("", vec)?;
 
     let error_vec = vec![
+        "Cannot connect to the Docker daemon at",
         "requires exactly argument",
         "Usage:  docker [OPTIONS] COMMAND",
         "is not a docker command.",

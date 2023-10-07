@@ -13,5 +13,6 @@ wei-log = "0.2.5"
 wei-env = "0.2.4"
 wei-download = { path = "../wei-download" }
 wei-docker-install = { path = "../wei-docker-install" } #"0.2.6"
-# tokio = { version = "1.28", features = ["full"] }
+
 serde_json = "1.0"
+serde = "1.0"

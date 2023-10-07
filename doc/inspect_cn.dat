@@ -1,0 +1,111 @@
+Id：容器的唯一标识符。
+Created：容器创建的日期和时间。
+Path：容器启动时运行的命令或程序。
+Args：传递给启动命令的参数列表。
+State：描述容器当前状态的对象。
+    Status：容器的状态，如 "running"，"paused" 等。
+    Running：如果容器正在运行，则此值为 true。
+    Paused：如果容器被暂停，则此值为 true。
+    Restarting：如果容器正在重启，则此值为 true。
+    OOMKilled：如果容器因为内存不足而被杀死，则此值为 true。
+    Dead：如果容器已经停止，并且无法重启，则此值为 true。
+    Pid：容器主进程的进程 ID。
+    ExitCode：容器退出时的返回码。
+    Error：如果在容器中发生错误，这里会显示错误信息。
+    StartedAt：容器开始运行的日期和时间。
+    FinishedAt：容器停止运行的日期和时间。
+Image：创建容器的镜像的ID。
+ResolvConfPath：容器的resolv.conf文件的路径，该文件用于DNS解析。
+HostnamePath：容器的主机名文件的路径。
+HostsPath：容器的hosts文件的路径，该文件用于静态主机名解析。
+LogPath：容器的日志文件的路径。
+Name：容器的名字。
+RestartCount：容器重启的次数。
+Driver：容器使用的存储驱动。
+Platform：容器运行的平台。
+MountLabel 和 ProcessLabel：与容器的安全性/访问控制相关的选项。
+AppArmorProfile：应用的AppArmor安全策略的名称。
+ExecIDs：在容器内执行的进程的ID列表。
+HostConfig：关于容器主机的配置信息。
+GraphDriver：关于图形驱动的信息。
+Mounts：挂载到容器的存储卷的信息。
+Config：关于容器的配置信息，如环境变量、命令、镜像等。
+NetworkSettings：关于容器的网络配置的信息。
+HostConfig：这个对象包含了容器的主机配置。有些值会在容器创建时被设置，而有些值则是在容器运行时被设置。其中包括：
+    Binds：列出了所有挂载到容器的卷。
+    ContainerIDFile：保存容器 ID 的文件路径。
+    LogConfig：日志配置。
+    NetworkMode：网络模式。
+    PortBindings：网络端口绑定。
+    RestartPolicy：重启策略。
+    AutoRemove：容器停止后是否自动删除容器。
+    VolumeDriver：卷驱动程序。
+    VolumesFrom：此容器可以访问的其他容器的卷。
+    CapAdd，CapDrop：添加或删除的 Linux 内核功能。
+    Dns，DnsOptions，DnsSearch：DNS 配置。
+    ExtraHosts：添加到容器 /etc/hosts 文件的额外条目。
+    IpcMode：IPC 模式。
+    Cgroup：Cgroup 模式。
+    Links：此容器链接到的其他容器。
+    OomScoreAdj：调整容器的 OOM 分数。
+    PidMode：PID 模式。
+    Privileged：是否以特权模式运行此容器。
+    PublishAllPorts：是否发布所有端口。
+    ReadonlyRootfs：是否将根文件系统设为只读。
+    SecurityOpt：安全选项。
+    UTSMode：UTS 模式。
+    UsernsMode：用户命名空间模式。
+    ShmSize：共享内存大小。
+    Runtime：运行时。
+    ConsoleSize：控制台大小。
+    Isolation：隔离技术。
+    CpuShares，Memory，NanoCpus，CgroupParent，BlkioWeight，BlkioWeightDevice，BlkioDeviceReadBps，BlkioDeviceWriteBps，BlkioDeviceReadIOps，BlkioDeviceWriteIOps，CpuPeriod，CpuQuota，CpuRealtimePeriod，CpuRealtimeRuntime，CpusetCpus，CpusetMems，Devices，DeviceCgroupRules，DeviceRequests，MemoryReservation，MemorySwap，MemorySwappiness，OomKillDisable，PidsLimit，Ulimits，CpuCount，CpuPercent，IOMaximumIOps，IOMaximumBandwidth：这些选项用于配置容器的资源限制和优先级。
+GraphDriver：描述了用于存储容器的文件系统的信息。
+Mounts：列出了所有挂载到容器的卷。
+Config：这个对象描述了容器的配置。其中包括：
+    Hostname：容器的主机名。
+    Domainname：容器的域名。
+    User：运行容器的用户。
+    AttachStdin，AttachStdout，AttachStderr：这些值表示容器是否应该连接到stdin，stdout或stderr。
+    ExposedPorts：容器暴露的网络端口。
+    Tty：是否为容器分配一个tty。
+    OpenStdin：是否在容器的stdin上打开一个STDIN流。
+    StdinOnce：如果设置为 true，那么STDIN只能打开一次。
+    Env：容器的环境变量。
+    Cmd：容器的默认命令。
+    Image：创建容器的镜像的名称。
+    Volumes：在容器中定义的卷。
+    ``WorkingDir`：容器的工作目录。
+    Entrypoint：容器的入口点。
+    OnBuild：在构建过程中运行的命令。
+    Labels：附加到容器上的标签。
+NetworkSettings：这个对象描述了容器的网络配置。其中包括：
+    Bridge：容器连接的网络桥。
+    SandboxID：网络沙箱的唯一标识符。
+    HairpinMode：表示是否启用了 hairpin 模式。
+    LinkLocalIPv6Address，LinkLocalIPv6PrefixLen：容器的 IPv6 链接本地地址和前缀长度。
+    Ports：容器的网络端口。
+    SandboxKey：网络沙箱的键。
+    SecondaryIPAddresses，SecondaryIPv6Addresses：容器的次要 IP 地址。
+    EndpointID：网络端点的 ID。
+    Gateway：网络网关。
+    GlobalIPv6Address，GlobalIPv6PrefixLen：全局 IPv6 地址和前缀长度。
+    IPAddress：容器的 IP 地址。
+    IPPrefixLen：网络前缀长度。
+    IPv6Gateway：IPv6 网关。
+    MacAddress：容器的 MAC 地址。
+    Networks：容器连接的网络及其配置。
+        bridge:
+            IPAMConfig：IP 地址管理(IPAM)的配置。
+            Links：在该网络上，此容器链接到的其他容器。
+            Aliases：在该网络上，此容器的别名。
+            NetworkID：网络的唯一标识符。
+            EndpointID：网络端点的唯一标识符。
+            Gateway：网络网关的IP地址。
+            IPAddress：容器在这个网络上的IP地址。
+            IPPrefixLen：IP地址的前缀长度。
+            IPv6Gateway：网络的IPv6网关。
+            GlobalIPv6Address：容器在这个网络上的全局IPv6地址。
+            GlobalIPv6PrefixLen：全局IPv6地址的前缀长度。
+            MacAddress：容器在这个网络上的MAC地址。
+            DriverOpts：网络驱动程序选项。
