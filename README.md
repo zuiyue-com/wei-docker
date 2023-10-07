@@ -31,9 +31,9 @@
     - [x] 删除镜像
     - [x] 镜像是否存在
 
-- [ ] 容器管理
+- [x] 容器管理
     - [x] 启动容器 run
-    - [ ] 切换容器为无GPU模式 stop && commit && rm && run
+    - [x] 切换容器为无GPU模式 stop && commit && rm && run
     - [x] 容器列表 ps -a
     - [x] 停止容器 stop
     - [x] 恢复/重启容器 restart
