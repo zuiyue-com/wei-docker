@@ -127,7 +127,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             print!("{}", serde_json::json!({
                 "code": "400",
                 "msg": "error",
-                "data": "command not found"
+                "data": format!("{} not found", command)
             }));
             return Ok(());
         }
