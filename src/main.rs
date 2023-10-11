@@ -45,8 +45,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         "check" => {
             print!("{}",serde_json::json!({
-                "code": "200",
-                "msg": "success",
+                "code": 200,
+                "message": "success",
                 "progress": wei_docker_install::check()
             }));
         },
@@ -69,15 +69,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             match container::ps_a() {
                 Ok(data) => {
                     print!("{}", serde_json::json!({
-                        "code": "200",
-                        "msg": "success",
+                        "code": 200,
+                        "message": "success",
                         "data": data
                     }));
                 },
                 Err(data) => {
                     print!("{}", serde_json::json!({
-                        "code": "400",
-                        "msg": data.to_string()
+                        "code": 400,
+                        "message": data.to_string()
                     }));
                 }
             }
@@ -107,15 +107,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             match container::inspect(&args[2]) {
                 Ok(data) => {
                     print!("{}", serde_json::json!({
-                        "code": "200",
-                        "msg": "success",
+                        "code": 200,
+                        "message": "success",
                         "data": data
                     }));
                 },
                 Err(data) => {
                     print!("{}", serde_json::json!({
-                        "code": "400",
-                        "msg": data.to_string()
+                        "code": 400,
+                        "message": data.to_string()
                     }));
                 }
             };
@@ -125,8 +125,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         _ => {
             print!("{}", serde_json::json!({
-                "code": "400",
-                "msg": "error",
+                "code": 400,
+                "message": "error",
                 "data": format!("{} not found", command)
             }));
             return Ok(());
@@ -168,15 +168,15 @@ pub fn result_string(data: Result<String, Box<dyn std::error::Error>>) {
     match data {
         Ok(data) => {
             print!("{}", serde_json::json!({
-                "code": "200",
-                "msg": "success",
+                "code": 200,
+                "message": "success",
                 "data": data
             }));
         },
         Err(data) => {
             print!("{}", serde_json::json!({
-                "code": "400",
-                "msg": data.to_string()
+                "code": 400,
+                "message": data.to_string()
             }));
         }
     }
@@ -186,15 +186,15 @@ pub fn result_vec(data: Result<Vec<String>, Box<dyn std::error::Error>>) {
     match data {
         Ok(data) => {
             print!("{}", serde_json::json!({
-                "code": "200",
-                "msg": "success",
+                "code": 200,
+                "message": "success",
                 "data": data
             }));
         },
         Err(data) => {
             print!("{}", serde_json::json!({
-                "code": "400",
-                "msg": data.to_string(),
+                "code": 400,
+                "message": data.to_string(),
             }));
         }
     }
@@ -204,14 +204,14 @@ pub fn result(data: Result<(), Box<dyn std::error::Error>>) {
     match data {
         Ok(()) => {
             print!("{}", serde_json::json!({
-                "code": "200",
-                "msg": "success",
+                "code": 200,
+                "message": "success",
             }));
         },
         Err(data) => {
             print!("{}", serde_json::json!({
-                "code": "400",
-                "msg": data.to_string()
+                "code": 400,
+                "message": data.to_string()
             }));
         }
     }
