@@ -10,7 +10,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 wei-run = "0.2.5"
 wei-log = "0.2.8"
-wei-env = "0.2.4"
+wei-env = "0.2.13"
 wei-download = { path = "../wei-download" }
 wei-docker-install = { path = "../wei-docker-install" } #"0.2.6"
 
