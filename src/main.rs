@@ -28,20 +28,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 &std::env::current_dir()?.display().to_string()
             )?);
         }
+        "download_check" => {
+            println!("{}",wei_download::list(
+                QBitTorrent, 
+                "docker"
+            )?);
+        }
         "install" => {
             info!("Installing...");
             wei_docker_install::install();
-        },
-        "start" => {
-            info!("Starting...");
-            action::start();
-        },
-        "stop" => {
-            info!("Stoping...");
-            action::stop();
-        }
-        "uninstall" => {
-            info!("Uninstalling...");
         },
         "check" => {
             print!("{}",serde_json::json!({
@@ -49,6 +44,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "message": "success",
                 "progress": wei_docker_install::check()
             }));
+        },
+        "start" => {
+            info!("Starting...");
+            action::start()?;
+            print!("{}",serde_json::json!({
+                "code": 200,
+                "message": "success"
+            }));
+        },
+        "stop" => {
+            info!("Stoping...");
+            action::stop()?;
+            print!("{}",serde_json::json!({
+                "code": 200,
+                "message": "success"
+            }));
+        }
+        "api" => {
+            action::api()?;
+        }
+        "reinstall" => {
+            info!("Reinstalling...");
+        },
+        "uninstall" => {
+            info!("Uninstalling...");
         },
         "image_pull" => {
             result_string(image::pull(&args[2]));
