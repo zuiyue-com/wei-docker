@@ -37,6 +37,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "install" => {
             info!("Installing...");
             wei_docker_install::install();
+            print!("{}",serde_json::json!({
+                "code": 200,
+                "message": "success"
+            }));
+        },
+        "uninstall" => {
+            info!("Uninstalling...");
+            wei_docker_install::uninstall();
+            print!("{}",serde_json::json!({
+                "code": 200,
+                "message": "success"
+            }));
         },
         "check" => {
             print!("{}",serde_json::json!({
@@ -64,15 +76,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "api" => {
             action::api()?;
         }
-        "reinstall" => {
-            info!("Reinstalling...");
-        },
-        "uninstall" => {
-            info!("Uninstalling...");
-        },
         "image_pull" => {
-            result_string(image::pull(&args[2]));
+            let mut url = "".to_string();
+            if args.len() > 3 {
+                url = args[3].clone();
+            }
+            print!("{}", image::pull(&args[2], &url)?);
         },
+        "image_progress" => {
+            print!("{}", serde_json::json!({
+                "code": 200,
+                "message": "success",
+                "data": image::progress(&args[2])?
+            }));
+        }
         "image_rmi" => {
             result_string(image::rmi(&args[2]));
         },
