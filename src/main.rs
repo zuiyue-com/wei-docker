@@ -96,6 +96,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "image_list" => {
             result_vec(image::list());
         },
+        "image_list_full" => {
+            result_value(image::list_full());
+        },
         "image_exists" => {
             result(image::exists(&args[2]));
         },
@@ -214,6 +217,24 @@ pub fn result_string(data: Result<String, Box<dyn std::error::Error>>) {
             print!("{}", serde_json::json!({
                 "code": 400,
                 "message": data.to_string()
+            }));
+        }
+    }
+}
+
+pub fn result_value(data: Result<serde_json::Value, Box<dyn std::error::Error>>) {
+    match data {
+        Ok(data) => {
+            print!("{}", serde_json::json!({
+                "code": 200,
+                "message": "success",
+                "data": data
+            }));
+        },
+        Err(data) => {
+            print!("{}", serde_json::json!({
+                "code": 400,
+                "message": data.to_string(),
             }));
         }
     }

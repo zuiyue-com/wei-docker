@@ -57,6 +57,34 @@ pub fn list() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     Ok(vec)
 }
 
+
+pub fn list_full() -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+    let data = super::docker(
+        vec!["images", "--format", 
+        r#"
+        {"Repository": "{{.Repository}}", 
+        "Tag": "{{.Tag}}", 
+        "ImageID": "{{.ID}}", 
+        "CreatedAt": "{{.CreatedAt}}", 
+        "Size": "{{.Size}}"}|||"#]
+    )?;
+
+    let mut value:serde_json::Value = serde_json::json!([]);
+    for item in data.split("|||") {
+        let item = item.trim();
+        if !item.is_empty() {
+            let c: serde_json::Value = serde_json::from_str(item)?;
+            
+            if let Some(array) = value.as_array_mut() {
+                // 向数组中添加新元素
+                array.push(c);
+            }
+        }
+    }
+
+    Ok(value)
+}
+
 pub fn exists(name: &str) -> Result<(), Box<dyn std::error::Error>> {
     let data = list()?;
 
