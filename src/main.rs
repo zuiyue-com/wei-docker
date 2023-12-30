@@ -7,7 +7,7 @@ mod container;
 
 use std::env;
 
-use wei_download::DownloadMethod::QBitTorrent;
+// use wei_download::DownloadMethod::QBitTorrent;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -22,17 +22,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match command.as_str() {
         "download" => {
             info!("Downloading...");
-            println!("{}",wei_download::add(
-                QBitTorrent, 
-                "http://download.zuiyue.com/windows/torrent/docker.torrent",
-                &std::env::current_dir()?.display().to_string()
-            )?);
+            println!("{}", 
+                wei_run::run("wei-download", 
+                vec![
+                    "add", 
+                    "http://download.zuiyue.com/windows/torrent/docker.torrent",
+                    &std::env::current_dir()?.display().to_string()
+                    ])?
+            );
         }
         "download_check" => {
-            println!("{}",wei_download::list(
-                QBitTorrent, 
-                "docker"
-            )?);
+            println!("{}", 
+                wei_run::run("wei-download", 
+                vec![
+                    "list", 
+                    "docker",
+                    ])?
+            );
         }
         "install" => {
             info!("Installing...");
@@ -79,7 +85,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "image_pull" => {
             let mut url = "".to_string();
             if args.len() > 3 {
-                url = args[3].clone();
+                url = base64::encode(args[3].clone());
             }
             print!("{}", image::pull(&args[2], &url)?);
         },
@@ -100,10 +106,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             result_value(image::list_full());
         },
         "image_exists" => {
-            result(image::exists(&args[2]));
+            result_string(image::exists(&args[2]));
         },
         "container_run" => {
+            let url_progress = args[args.len() - 1].clone();
+
+            if url_progress.contains("http") {
+                result_string(container::run(args[2..args.len()-1].to_vec()));
+                return Ok(());
+            }
+
             result_string(container::run(args[2..].to_vec()));
+        },
+        "image_pull_container_run" => {
+            // 如果倒数第二个参数包含 http 则认为是 url
+            let url = args[args.len() - 1].clone();
+            let last = args.len() - 1;
+
+            info!("args: {:?}", args[3..last].to_vec());
+
+            let url = base64::encode(url);
+            image::pull(&args[2], &url)?;
+            result_string(container::run(args[3..last].to_vec()));
         },
         "container_ps" => {
             match container::ps_a() {
@@ -161,7 +185,35 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             };
         }
         "container_switch_gpu" => {
+            let url_progress = args[args.len() - 1].clone();
+
+            if url_progress.contains("http") {
+                result_string(container::switch_gpu(&args[2], args[3..args.len()-1].to_vec()));
+                return Ok(());
+            }
+
             result_string(container::switch_gpu(&args[2], args[3..].to_vec()));
+        }
+        "container_fix_nvidia" => {
+            // rm /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+            // rm /usr/lib/x86_64-linux-gnu/libcuda.so.1
+            // rm /usr/lib/x86_64-linux-gnu/libcudadebugger.so.1
+        }
+        "wsl_update" => {
+            match wei_run::run("wsl", vec!["curl", "-fsSL", "http://download.zuiyue.com/wsl/wei-docker-linux", "-o", "/usr/bin/wei-docker-linux"]) {
+                Ok(_) => {
+                    print!("{}", serde_json::json!({
+                        "code": 200,
+                        "message": "success"
+                    }));
+                },
+                Err(data) => {
+                    print!("{}", serde_json::json!({
+                        "code": 400,
+                        "message": data.to_string()
+                    }));
+                }
+            };
         }
         _ => {
             print!("{}", serde_json::json!({
@@ -185,6 +237,11 @@ pub fn docker(mut vec: Vec<&str>) -> Result<String, Box<dyn std::error::Error>> 
     #[cfg(not(target_os = "windows"))]
     let data = wei_run::command("", vec)?;
 
+    // 如果长度等于65个字母，则返回正确
+    if data.len() == 65 {
+        return Ok(data);
+    }
+
     let error_vec = vec![
         "Cannot connect to the Docker daemon at",
         "requires exactly argument",
@@ -193,6 +250,8 @@ pub fn docker(mut vec: Vec<&str>) -> Result<String, Box<dyn std::error::Error>> 
         "Error response from daemon: No such image:",
         "Error response from daemon: pull access denied for",
         "Error response from daemon:",
+        "requires at least 1 argument.",
+        "error:"
     ];
 
     for item in error_vec {

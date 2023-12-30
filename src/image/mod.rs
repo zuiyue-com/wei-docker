@@ -85,12 +85,12 @@ pub fn list_full() -> Result<serde_json::Value, Box<dyn std::error::Error>> {
     Ok(value)
 }
 
-pub fn exists(name: &str) -> Result<(), Box<dyn std::error::Error>> {
+pub fn exists(name: &str) -> Result<String, Box<dyn std::error::Error>> {
     let data = list()?;
 
     for item in data {
         if item == name {
-            return Ok(());
+            return Ok("image exists".into());
         }
     }
 
