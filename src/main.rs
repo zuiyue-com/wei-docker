@@ -72,8 +72,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "progress": wei_docker_install::check()
             }));
         },
+        "is_started" => {
+            action::is_started();
+        }
         "is_installed" => {
             action::is_installed();
+        },
+        "docker_service_auto_start" => {
+            result(action::docker_autorun());
+        },
+        "docker_service_auto_stop" => {
+            result(action::docker_unautorun());
         },
         "start" => {
             info!("Starting...");

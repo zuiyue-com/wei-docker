@@ -35,18 +35,57 @@ pub fn wsl_update() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+pub fn docker_autorun() -> Result<(), Box<dyn std::error::Error>> {
+    wei_env::write(
+        &format!("{}docker-autorun.dat", wei_env::home_dir()?), 
+        "autorun", "1"
+    )?;
+
+    Ok(())
+}
+
+pub fn docker_unautorun() -> Result<(), Box<dyn std::error::Error>> {
+    wei_env::write(
+        &format!("{}docker-autorun.dat", wei_env::home_dir()?), 
+        "autorun", "0"
+    )?;
+
+    Ok(())
+}
+
+pub fn is_started() {
+    let data = match super::docker(vec!["images"]) {
+        Ok(data) => data,
+        Err(_) => {
+            print!("{}", serde_json::json!({
+                "code": 200,
+                "message": "success",
+                "is_start": false
+            }));
+            return;
+        }
+    };
+    let mut is_start = false;
+    if data.contains("REPOSITORY") {
+        is_start = true;
+    }
+    
+    print!("{}", serde_json::json!({
+        "code": 200,
+        "message": "success",
+        "is_start": is_start
+    }));
+}
+
 pub fn is_installed() {
     let data = wei_docker_install::check();
+
+    let mut is_installed = false;
 
     match data["ubuntu"].as_bool() {
         Some(data) => {
             if data {
-                print!("{}", serde_json::json!({
-                    "code": 200,
-                    "message": "success",
-                    "is_installed": true
-                }));
-                return;
+                is_installed = true;
             }
         },
         None => {}
@@ -55,7 +94,7 @@ pub fn is_installed() {
     print!("{}",serde_json::json!({
         "code": 200,
         "message": "success",
-        "is_installed": false
+        "is_installed": is_installed
     }));
 }
 
