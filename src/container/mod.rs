@@ -55,6 +55,16 @@ pub fn stop(name: &str) -> Result<(),Box<dyn std::error::Error>> {
     Ok(())
 }
 
+pub fn stop_all() -> Result<(), Box<dyn std::error::Error>> {
+    let data = ps_a()?;
+
+    for item in data {
+        stop(item.names.as_str())?;
+    }
+
+    Ok(())
+}
+
 // 恢复/重启容器 restart
 pub fn restart(name: &str) -> Result<(),Box<dyn std::error::Error>> {
     super::docker(vec!["restart", name])?;

@@ -1,13 +1,62 @@
 pub fn start() -> Result<(), Box<dyn std::error::Error>> {
-    let param = vec!["/usr/bin/dockerd", "-H", "unix:///var/run/docker.sock", "-H", "tcp://0.0.0.0:2375"];
+    #[cfg(target_os = "windows")] {
+        let param = vec!["service", "docker", "start"];
+        wei_run::command_async("wsl", param)?;
+    }
     
-    #[cfg(target_os = "windows")] {}
-    wei_run::command_async("wsl", param)?;
-
-    #[cfg(not(target_os = "windows"))]
-    wei_run::command_async("", param)?;
+    #[cfg(not(target_os = "windows"))] {
+        let param = vec!["/usr/bin/dockerd", "-H", "unix:///var/run/docker.sock", "-H", "tcp://0.0.0.0:2375"];
+        wei_run::command_async("", param)?;
+    }
+    
     
     Ok(())
+}
+
+
+pub fn wsl_update() -> Result<(), Box<dyn std::error::Error>> {
+    wei_run::command("wsl", 
+        vec![
+            "curl", 
+            "-fSL", 
+            "http://download.zuiyue.com/wsl/wei-docker-linux",
+            "-o", 
+            "/usr/bin/wei-docker-linux"
+        ]
+    )?;
+    wei_run::command("wsl",
+        vec![
+            "chmod", 
+            "+x", 
+            "/usr/bin/wei-docker-linux"
+        ]
+    )?;
+              
+    Ok(())
+}
+
+pub fn is_installed() {
+    let data = wei_docker_install::check();
+
+    match data["ubuntu"].as_bool() {
+        Some(data) => {
+            if data {
+                print!("{}", serde_json::json!({
+                    "code": 200,
+                    "message": "success",
+                    "is_installed": true
+                }));
+                return;
+            }
+        },
+        None => {}
+    }
+
+    print!("{}",serde_json::json!({
+        "code": 200,
+        "message": "success",
+        "is_installed": false
+    }));
 }
 
 pub fn api() -> Result<(), Box<dyn std::error::Error>> {
@@ -111,5 +160,91 @@ pub fn stop() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(not(target_os = "windows"))]
     wei_run::command("pkill", vec!["dockerd"])?;
 
+    Ok(())
+}
+
+pub fn one_click() -> Result<(), Box<dyn std::error::Error>> {
+    // 一键安装的记录
+    wei_env::write(
+        &format!("{}docker-one-click.dat", wei_env::home_dir()?), 
+        "install", "1"
+    )?;
+
+    // 设置开机启动
+    autorun()?;
+
+    // 下载 docker
+    wei_run::run("wei-docker", vec!["download"])?;
+
+    // 检测 docker 完整性
+    loop {
+        let data = wei_run::run("wei-docker", vec!["download_check"])?;
+    
+        let data: serde_json::Value = match serde_json::from_str(&data) {
+            Ok(data) => data,
+            Err(err) => {
+                info!("error:{}, data:{}", err, data);
+                serde_json::json!({})
+            }
+        };
+        
+        match data["code"].as_i64() {
+            Some(code) => {
+                if code == 200 && data["data"].is_object() {
+                    let complete_length = data["data"]["completed_length"].as_str().unwrap_or("0");
+                    let total_length = data["data"]["total_length"].as_str().unwrap_or("100");
+
+                    if complete_length == total_length {
+                        break;
+                    }
+                }
+            },
+            None => {}
+        }
+
+        std::thread::sleep(std::time::Duration::from_secs(1));
+    }
+
+    // 安装 docker
+    wei_run::run("wei-docker", vec!["install"])?;
+
+    // 重启
+    // 开机启动客户端 
+    // 检测到一键安装的设置
+    // 删除一键安装的设置
+    // 安装 ubuntu
+
+    // 更新 wsl
+    wsl_update()?;
+
+    Ok(())
+}
+
+
+use winreg::enums::*;
+use winreg::RegKey;
+use std::env;
+pub fn autorun() -> Result<(), Box<dyn std::error::Error>> {
+    info!("autorun");
+    let path = env::current_exe()?;
+    let path_str = path.to_str().ok_or("Invalid path")?;
+    let path_str = path_str.replace("\\", "/");
+    let path_str = path_str.replace("data/wei-docker.exe", "wei.exe");
+
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+
+    let (key, _) = hkcu.create_subkey("Software\\Microsoft\\Windows\\CurrentVersion\\Run")?;
+
+    key.set_value("Wei", &path_str)?;
+    Ok(())
+}
+
+
+pub fn unautorun() -> Result<(), Box<dyn std::error::Error>> {
+    info!("unautorun");
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let key = hkcu.open_subkey_with_flags("Software\\Microsoft\\Windows\\CurrentVersion\\Run", KEY_WRITE)?;
+    
+    key.delete_value("Wei")?;
     Ok(())
 }

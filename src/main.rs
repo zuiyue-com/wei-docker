@@ -20,6 +20,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     match command.as_str() {
+        "one_click" => {
+            result(action::one_click());
+        }
+        "autorun" => {
+            result(action::autorun());
+        }
+        "unautorun" => {
+            result(action::unautorun());
+        }
         "download" => {
             info!("Downloading...");
             println!("{}", 
@@ -42,11 +51,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         "install" => {
             info!("Installing...");
-            wei_docker_install::install();
             print!("{}",serde_json::json!({
                 "code": 200,
                 "message": "success"
             }));
+            wei_docker_install::install();
         },
         "uninstall" => {
             info!("Uninstalling...");
@@ -62,6 +71,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "message": "success",
                 "progress": wei_docker_install::check()
             }));
+        },
+        "is_installed" => {
+            action::is_installed();
         },
         "start" => {
             info!("Starting...");
@@ -149,6 +161,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "container_stop" => {
             result(container::stop(&args[2]));
         },
+        "container_stop_all" => {
+            result(container::stop_all());
+        }
         "container_exists" => {
             result(container::exists(&args[2]));
         },
@@ -199,21 +214,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             // rm /usr/lib/x86_64-linux-gnu/libcuda.so.1
             // rm /usr/lib/x86_64-linux-gnu/libcudadebugger.so.1
         }
+        // "container_install_"
         "wsl_update" => {
-            match wei_run::run("wsl", vec!["curl", "-fsSL", "http://download.zuiyue.com/wsl/wei-docker-linux", "-o", "/usr/bin/wei-docker-linux"]) {
-                Ok(_) => {
-                    print!("{}", serde_json::json!({
-                        "code": 200,
-                        "message": "success"
-                    }));
-                },
-                Err(data) => {
-                    print!("{}", serde_json::json!({
-                        "code": 400,
-                        "message": data.to_string()
-                    }));
-                }
-            };
+            result(action::wsl_update());
         }
         _ => {
             print!("{}", serde_json::json!({
