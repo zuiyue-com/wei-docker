@@ -78,6 +78,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "is_installed" => {
             action::is_installed();
         },
+        "is_autorun" => {
+            result_string(action::is_autorun());
+        },
         "docker_service_auto_start" => {
             result(action::docker_autorun());
         },

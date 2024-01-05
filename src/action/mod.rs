@@ -34,6 +34,15 @@ pub fn wsl_update() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+pub fn is_autorun() -> Result<String, Box<dyn std::error::Error>> {
+    let data = wei_env::read(
+        &format!("{}docker-autorun.dat", wei_env::home_dir()?),
+        "autorun"
+    )?;
+
+    Ok(data)
+}
+
 pub fn docker_autorun() -> Result<(), Box<dyn std::error::Error>> {
     wei_env::write(
         &format!("{}docker-autorun.dat", wei_env::home_dir()?), 
@@ -59,14 +68,14 @@ pub fn is_started() {
             print!("{}", serde_json::json!({
                 "code": 200,
                 "message": "success",
-                "is_start": false
+                "is_start": "0"
             }));
             return;
         }
     };
-    let mut is_start = false;
+    let mut is_start = "1";
     if data.contains("REPOSITORY") {
-        is_start = true;
+        is_start = "1";
     }
     
     print!("{}", serde_json::json!({
