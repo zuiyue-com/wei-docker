@@ -73,7 +73,7 @@ pub fn is_started() {
             return;
         }
     };
-    let mut is_start = "1";
+    let mut is_start = "0";
     if data.contains("REPOSITORY") {
         is_start = "1";
     }
