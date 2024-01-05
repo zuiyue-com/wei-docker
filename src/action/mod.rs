@@ -9,7 +9,6 @@ pub fn start() -> Result<(), Box<dyn std::error::Error>> {
         wei_run::command_async("", param)?;
     }
     
-    
     Ok(())
 }
 
@@ -210,7 +209,7 @@ pub fn one_click() -> Result<(), Box<dyn std::error::Error>> {
     )?;
 
     // 设置开机启动
-    autorun()?;
+    // autorun()?;
 
     // 下载 docker
     wei_run::run("wei-docker", vec!["download"])?;
@@ -253,9 +252,6 @@ pub fn one_click() -> Result<(), Box<dyn std::error::Error>> {
     // 删除一键安装的设置
     // 安装 ubuntu
 
-    // 更新 wsl
-    wsl_update()?;
-
     Ok(())
 }
 
@@ -263,7 +259,7 @@ pub fn one_click() -> Result<(), Box<dyn std::error::Error>> {
 use winreg::enums::*;
 use winreg::RegKey;
 use std::env;
-pub fn autorun() -> Result<(), Box<dyn std::error::Error>> {
+pub fn _autorun() -> Result<(), Box<dyn std::error::Error>> {
     info!("autorun");
     let path = env::current_exe()?;
     let path_str = path.to_str().ok_or("Invalid path")?;
@@ -279,7 +275,7 @@ pub fn autorun() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 
-pub fn unautorun() -> Result<(), Box<dyn std::error::Error>> {
+pub fn _unautorun() -> Result<(), Box<dyn std::error::Error>> {
     info!("unautorun");
     let hkcu = RegKey::predef(HKEY_CURRENT_USER);
     let key = hkcu.open_subkey_with_flags("Software\\Microsoft\\Windows\\CurrentVersion\\Run", KEY_WRITE)?;

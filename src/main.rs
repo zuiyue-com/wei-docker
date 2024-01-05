@@ -23,12 +23,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "one_click" => {
             result(action::one_click());
         }
-        "autorun" => {
-            result(action::autorun());
-        }
-        "unautorun" => {
-            result(action::unautorun());
-        }
+        // "autorun" => {
+        //     result(action::autorun());
+        // }
+        // "unautorun" => {
+        //     result(action::unautorun());
+        // }
         "download" => {
             info!("Downloading...");
             println!("{}", 
@@ -231,7 +231,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             print!("{}", serde_json::json!({
                 "code": 400,
                 "message": "error",
-                "data": format!("{} not found", command)
+                "data": format!("function {} not found", command)
             }));
             return Ok(());
         }
