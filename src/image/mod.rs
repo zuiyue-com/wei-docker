@@ -96,3 +96,20 @@ pub fn exists(name: &str) -> Result<String, Box<dyn std::error::Error>> {
 
     Err("not exists".into())
 }
+
+pub fn clear_none() -> Result<(),Box<dyn std::error::Error>> {
+    let data = super::docker(vec!["images", "-f", "dangling=true", "-q"])?;
+    let data = data.trim();
+
+    for item in data.split("\n") {
+        let item = item.trim();
+        if !item.is_empty() {
+            match super::docker(vec!["rmi", item]) {
+                Ok(_) => {},
+                Err(_) => {},
+            };
+        }
+    }
+
+    Ok(())
+}

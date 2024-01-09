@@ -1,5 +1,5 @@
 // docker run -it --gpus all --name my_docker -e NVIDIA_DRIVER_CAPABILITIES=compute,utility -e NVIDIA_VISIBLE_DEVICES=all ubuntu:latset
-
+use crate::image;
 pub mod types;
 
 use types::{Container, ContainerStat};//, ContainerInspect};
@@ -180,3 +180,89 @@ pub fn switch_gpu(name: &str, args: Vec<String>) -> Result<String,Box<dyn std::e
 //         args.push(_gpu_device.as_str());
 //     }
 
+pub fn fix_nvidia(image_name: &str, container_name: &str) -> Result<(),Box<dyn std::error::Error>> {
+    // 使用非gpu模式运行 容器，tail -f /dev/null
+    super::docker(vec!["run", "-d", "--name", container_name, image_name, "tail", "-f", "/dev/null"])?;
+
+    // docker exec -it 容器名 rm /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
+    super::docker(vec!["exec", "-i", container_name, "rm", "/usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1"])?;
+    super::docker(vec!["exec", "-i", container_name, "rm", "/usr/lib/x86_64-linux-gnu/libcuda.so.1"])?;
+    super::docker(vec!["exec", "-i", container_name, "rm", "/usr/lib/x86_64-linux-gnu/libcudadebugger.so.1"])?;
+
+    super::docker(vec!["stop", container_name])?;
+    super::docker(vec!["commit", container_name, container_name])?;
+    super::docker(vec!["rm", container_name])?;
+
+    Ok(())
+}
+
+// pub fn run_code(code: &str, image_name: &str, container_name: &str, gpu_id: &str) -> Result<(),Box<dyn std::error::Error>> {
+    
+
+//     Ok(())
+// }
+
+pub fn exec_code(container_name: &str, code: &str) -> Result<String,Box<dyn std::error::Error>> {
+    let code = base64::decode(code)?;
+
+    let code = match String::from_utf8(code.clone()) {
+        Ok(data) => data,
+        Err(err) => {
+            print!("{}", serde_json::json!({
+                "code": 400,
+                "message": err.to_string()
+            }));
+            std::process::exit(0);
+        }
+    };
+
+    // 把code写入文件
+    let file_name = format!("./{}_code.sh", container_name);
+    std::fs::write(file_name.as_str(), code.as_str())?;
+
+    // 再把文件复制到容器里面
+    super::docker(vec!["cp", file_name.as_str(), format!("{}:/code.sh", container_name).as_str()])?;
+    // 删除本地文件
+    match std::fs::remove_file(file_name.as_str()) {
+        Ok(_) => {},
+        Err(_) => {}
+    };
+    // 最后exec 执行脚本
+    let data = super::docker(vec!["exec", "-i", container_name, "sh", "/code.sh"])?;
+    // 删除容器的脚本
+    super::docker(vec!["exec", "-i", container_name, "rm", "/code.sh"])?;
+
+    Ok(data)
+}
+
+pub fn one_click(args: Vec<String>) -> Result<String,Box<dyn std::error::Error>> {
+    let url = args[args.len() - 1].clone();
+    let last = args.len() - 1;
+    let image_name = args[2].clone();
+    let code = match base64::decode(args[3].clone()) {
+        Ok(data) => data,
+        Err(err) => {
+            print!("{}", serde_json::json!({
+                "code": 400,
+                "message": err.to_string()
+            }));
+            std::process::exit(0);
+        }
+    };
+
+    let url = base64::encode(url);
+    match image::pull(&image_name, &url) {
+        Ok(_) => {},
+        Err(data) => {
+            print!("{}", serde_json::json!({
+                "code": 400,
+                "message": data.to_string()
+            }));
+            std::process::exit(0);
+        }
+    };
+
+    image::clear_none()?;
+
+    run(args[4..last].to_vec())
+}

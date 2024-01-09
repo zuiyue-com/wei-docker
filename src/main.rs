@@ -132,6 +132,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "image_exists" => {
             result_string(image::exists(&args[2]));
         },
+        "image_clear_none" => {
+            result(image::clear_none());
+        }
         "container_run" => {
             let url_progress = args[args.len() - 1].clone();
 
@@ -142,15 +145,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             result_string(container::run(args[2..].to_vec()));
         },
+        "one_click" => {
+            result_string(container::one_click(args));
+        }
         "image_pull_container_run" => {
-            // 如果倒数第二个参数包含 http 则认为是 url
             let url = args[args.len() - 1].clone();
             let last = args.len() - 1;
+            let image_name = args[2].clone();
 
-            info!("args: {:?}", args[3..last].to_vec());
+            info!("args: {:?}", args[0..last].to_vec());
 
             let url = base64::encode(url);
-            image::pull(&args[2], &url)?;
+            match image::pull(&image_name, &url) {
+                Ok(_) => {},
+                Err(data) => {
+                    print!("{}", serde_json::json!({
+                        "code": 400,
+                        "message": data.to_string()
+                    }));
+                    return Ok(());
+                }
+            };
             result_string(container::run(args[3..last].to_vec()));
         },
         "container_ps" => {
@@ -170,6 +185,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
         }
+        "container_exec_code" => {
+            result_string(container::exec_code(&args[2], &args[3]));
+        },
         "container_stop" => {
             result(container::stop(&args[2]));
         },
@@ -222,9 +240,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             result_string(container::switch_gpu(&args[2], args[3..].to_vec()));
         }
         "container_fix_nvidia" => {
-            // rm /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1
-            // rm /usr/lib/x86_64-linux-gnu/libcuda.so.1
-            // rm /usr/lib/x86_64-linux-gnu/libcudadebugger.so.1
+            result(container::fix_nvidia(&args[2], &args[3]));
         }
         // "container_install_"
         "wsl_update" => {
